@@ -1,7 +1,7 @@
 import React from 'react';
 // import logo from './logo.svg';
 import './App.css';
-import {Switch, Route} from 'react-router-dom';
+import {Switch, Route, Redirect} from 'react-router-dom';
 import {connect} from 'react-redux';
 
 import HomePage from './pages/homepage/homepage.component.jsx';
@@ -11,8 +11,6 @@ import SignInAndSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up
 
 import {auth, createUserProfileDocument} from './firebase/firebase.utils';
 import {setCurrentUser} from './redux/user/user.actions';
-import { testNameToKey } from 'jest-snapshot/build/utils';
-import { highlightTrailingWhitespace } from 'jest-matcher-utils';
 
 class App extends React.Component {
 
@@ -49,15 +47,29 @@ class App extends React.Component {
         <Switch>
           <Route exact path='/' component={HomePage} />
           <Route path='/shop' component={ShopPage} />
-          <Route path='/signIn' component={SignInAndSignUpPage} />
+          <Route 
+            render={()=>
+              this.props.currentUser?
+              (<Redirect to='/'/>) :
+              <SignInAndSignUpPage/>
+
+            }
+          />
         </Switch>
       </div>    
     )
   }
 }
 
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser
+})
+
 const mapDispatchToProps = dispatch => ({
  setCurrentUser: user => dispatch(setCurrentUser(user))
 })
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(
+  mapStateToProps, 
+  mapDispatchToProps
+  )(App);
